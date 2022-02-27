@@ -108,29 +108,61 @@ class CircuitElements():
         return trace
 
 #UTILITIES
-    def connect_elements(elements: list,color=WHITE,stroke_width=3):
+    def connect_series(elements:list,color=WHITE,stroke_width=3):
         path = VMobject(color=color,stroke_width=stroke_width)
-        for i in range(0, len(elements)):
+        for i in range(0,len(elements)):
             A = elements[i][0].get_critical_point(elements[i][1])
             B = elements[i][2].get_critical_point(elements[i][3])
-            if i < len(elements) - 1:
-                C = elements[i + 1][2].get_critical_point(elements[i + 1][3])
+            M1 = [A[0],B[1],0]
+            M2 = [B[0],A[1],0]
+
+            if i < len(elements)-1:
+                C = elements[i+1][2].get_critical_point(elements[i+1][3])
             else:
                 C = elements[0][2].get_critical_point(elements[0][3])
-            M1 = [A[0], B[1], 0]
-            M2 = [B[0], A[1], 0]
             if A[0] <= B[0]:
                 if B[0] <= C[0]:
                     M = M1
-                else:
-                    M = M2
+                else: M = M2
             else:
                 if B[0] <= C[0]:
                     M = M2
-                else:
-                    M = M1
-            # self.add(*[Dot(x) for x in [A,B,C,M1,M2]])
-            path = path.append_points(VMobject().set_points_as_corners([A, M, B]).points)
-        # self.add(*[Dot(wire.get_critical_point(x),color = PINK) for x in [UP,UR,RIGHT,DR,DOWN,DL,LEFT,UL]])
+                else: M = M1
+            #self.add(*[Dot(x) for x in [A,B,C,M1,M2]])
+            path = path.append_points(VMobject().set_points_as_corners([A,M,B]).points)
+        #self.add(*[Dot(path.get_critical_point(x),color = PINK) for x in [UP,UR,RIGHT,DR,DOWN,DL,LEFT,UL]])
         return path
+
+    def connect_parallel(elements:list,color=WHITE,stroke_width=3):
+        path =VMobject()
+        for i in range(0, len(elements)):
+            A = elements[i][0].get_critical_point(elements[i][1])
+            B = elements[i][2].get_critical_point(elements[i][3])
+            M1 = [A[0], B[1], 0]
+            M2 = [B[0], A[1], 0]
+            #print(A,B,M1,M2)
+            
+            if not (A==M1).all():
+                VA = np.subtract(elements[i][0].get_center(),A)
+                V1A = np.subtract(M1,A)
+                V2A = np.subtract(M2,A)
+                #print(VA,V1A,V2A)
+                VB = np.subtract(elements[i][2].get_center(),B)
+                V1B = np.subtract(M1,B)
+                V2B = np.subtract(M2,B)
+                #print(VB,V1B,V2B)
+                M = M1
+                if CircuitElements.get_angle(VA,V1A)==0:
+                    M = M2
+                elif CircuitElements.get_angle(VA,V1A)!=0 and CircuitElements.get_angle(VA,V2A)!=0:
+                    if CircuitElements.get_angle(VB,V1B) ==0:
+                        M=M2
+            else: M=M1
+            path = path.append_points(VMobject().set_points_as_corners([A, M, B]).points)
+        return path
+
+
+    def get_angle(V1:np.array,V2:np.array):
+        return round(
+            np.degrees(np.arccos(np.dot(V1,V2)/(np.linalg.norm(V1)*np.linalg.norm(V2)))))
 
