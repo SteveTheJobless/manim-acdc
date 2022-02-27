@@ -43,6 +43,16 @@ class CircuitElements():
         trace = VGroup(trace_1, trace_2, trace_3, trace_4, trace_5,box).scale(0.5).move_to(ORIGIN)
         return trace
 
+    def get_ground(stroke_width=3, color=RED):
+        trace_1 = Triangle(color=color, stroke_width=stroke_width * 2).scale(0.6).move_to(ORIGIN).rotate(-PI / 2).shift(
+            RIGHT / 2)
+        trace_2 = VMobject(color=color, stroke_width=stroke_width).set_points_as_corners(
+            [LEFT, trace_1.get_critical_point(LEFT)])
+        bounds = Rectangle(height=2, width=2, fill_opacity=0, stroke_opacity=0)
+        trace = VGroup(trace_1, trace_2, bounds).scale(0.5).rotate(-PI / 2).move_to(ORIGIN)
+        return trace
+
+
 
     #AC COMPONENTS
     def get_ac_v_source(stroke_width=3,color=WHITE,stroke_opacity=1):
@@ -98,7 +108,29 @@ class CircuitElements():
         return trace
 
 #UTILITIES
-    def connect_elements(elements):
-        trace = Mobject
-        pass
+    def connect_elements(elements: list,color=WHITE,stroke_width=3):
+        path = VMobject(color=color,stroke_width=stroke_width)
+        for i in range(0, len(elements)):
+            A = elements[i][0].get_critical_point(elements[i][1])
+            B = elements[i][2].get_critical_point(elements[i][3])
+            if i < len(elements) - 1:
+                C = elements[i + 1][2].get_critical_point(elements[i + 1][3])
+            else:
+                C = elements[0][2].get_critical_point(elements[0][3])
+            M1 = [A[0], B[1], 0]
+            M2 = [B[0], A[1], 0]
+            if A[0] <= B[0]:
+                if B[0] <= C[0]:
+                    M = M1
+                else:
+                    M = M2
+            else:
+                if B[0] <= C[0]:
+                    M = M2
+                else:
+                    M = M1
+            # self.add(*[Dot(x) for x in [A,B,C,M1,M2]])
+            path = path.append_points(VMobject().set_points_as_corners([A, M, B]).points)
+        # self.add(*[Dot(wire.get_critical_point(x),color = PINK) for x in [UP,UR,RIGHT,DR,DOWN,DL,LEFT,UL]])
+        return path
 
