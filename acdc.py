@@ -49,7 +49,7 @@ class CircuitElements():
         trace_2 = VMobject(color=color, stroke_width=stroke_width).set_points_as_corners(
             [LEFT, trace_1.get_critical_point(LEFT)])
         bounds = Rectangle(height=2, width=2, fill_opacity=0, stroke_opacity=0)
-        trace = VGroup(trace_1, trace_2, bounds).scale(0.5).rotate(-PI / 2).move_to(ORIGIN)
+        trace = VGroup(trace_1, trace_2, bounds).scale(0.25).rotate(-PI / 2).move_to(ORIGIN)
         return trace
 
 
