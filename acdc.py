@@ -133,33 +133,59 @@ class CircuitElements():
         #self.add(*[Dot(path.get_critical_point(x),color = PINK) for x in [UP,UR,RIGHT,DR,DOWN,DL,LEFT,UL]])
         return path
 
-    def connect_parallel(elements:list,color=WHITE,stroke_width=3):
-        path =VMobject()
+    def connect_parallel(elements: list, color=WHITE, stroke_width=3):
+        path = VMobject()
+        corners = [UL,UR,DL,DR]
+        cornerA_exists = False
+        cornerB_exists = False
+        VLA = []
+        VLB = []
         for i in range(0, len(elements)):
             A = elements[i][0].get_critical_point(elements[i][1])
             B = elements[i][2].get_critical_point(elements[i][3])
             M1 = [A[0], B[1], 0]
             M2 = [B[0], A[1], 0]
-            #print(A,B,M1,M2)
-            
-            if not (A==M1).all():
-                VA = np.subtract(elements[i][0].get_center(),A)
-                V1A = np.subtract(M1,A)
-                V2A = np.subtract(M2,A)
-                #print(VA,V1A,V2A)
-                VB = np.subtract(elements[i][2].get_center(),B)
-                V1B = np.subtract(M1,B)
-                V2B = np.subtract(M2,B)
-                #print(VB,V1B,V2B)
+            # print(A,B,M1,M2)
+            if not (A == M1).all():
+                for c in range(0,len(corners)):
+                    if (corners[c]==elements[i][1]).all():
+                        cornerA_exists = True
+                        for c1 in range(0,len(corners)):
+                            if c1!=c:
+                                #print("VLA: ",corners[c1])
+                                VLA.append(np.subtract(elements[i][0].get_critical_point(corners[c1]),A))
+
+                    if (corners[c]==elements[i][3]).all():
+                        cornerB_exists = True
+                        for c1 in range(0,len(corners)):
+                            if c1!=c:
+                                #print("VLB: ", corners[c1])
+                                VLB.append(np.subtract(elements[i][2].get_critical_point(corners[c1]), B))
+                if not cornerA_exists:
+                    VLA.append(np.subtract(elements[i][0].get_center(), A))
+                if not cornerB_exists:
+                    VLB.append(np.subtract(elements[i][2].get_center(), A))
+                #print('VLA',VLA)
+                #print('VLB',VLB)
                 M = M1
-                if CircuitElements.get_angle(VA,V1A)==0:
-                    M = M2
-                elif CircuitElements.get_angle(VA,V1A)!=0 and CircuitElements.get_angle(VA,V2A)!=0:
-                    if CircuitElements.get_angle(VB,V1B) ==0:
-                        M=M2
-            else: M=M1
+                for VA in VLA:
+                    for VB in VLB:
+                        V1A = np.subtract(M1, A)
+                        V2A = np.subtract(M2, A)
+                        # print(VA,V1A,V2A)
+                        V1B = np.subtract(M1, B)
+                        V2B = np.subtract(M2, B)
+                        # print(VB,V1B,V2B)
+                        if CircuitElements.get_angle(VA, V1A) == 0:
+                            M = M2
+                        elif CircuitElements.get_angle(VA, V1A) != 0 and CircuitElements.get_angle(VA, V2A) != 0:
+                            if CircuitElements.get_angle(VB, V1B) == 0:
+                                M = M2
+            else:
+                M = M1
             path = path.append_points(VMobject().set_points_as_corners([A, M, B]).points)
         return path
+
 
 
     def get_angle(V1:np.array,V2:np.array):
