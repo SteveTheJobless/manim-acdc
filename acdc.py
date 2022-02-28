@@ -138,13 +138,13 @@ class CircuitElements():
         corners = [UL,UR,DL,DR]
         cornerA_exists = False
         cornerB_exists = False
-        VLA = []
-        VLB = []
         for i in range(0, len(elements)):
             A = elements[i][0].get_critical_point(elements[i][1])
             B = elements[i][2].get_critical_point(elements[i][3])
             M1 = [A[0], B[1], 0]
             M2 = [B[0], A[1], 0]
+            VLA = []
+            VLB = []
             # print(A,B,M1,M2)
             if not (A == M1).all():
                 for c in range(0,len(corners)):
