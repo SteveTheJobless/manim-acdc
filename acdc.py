@@ -30,10 +30,10 @@ class CircuitElements():
         return VGroup(bounds,trace)
 
     def get_closed_switch(stroke_width=3,stroke_color=WHITE):
-        trace_1 = Circle(radius=0.1,stroke_width=stroke_width*0.5,stroke_color=stroke_color).move_to(np.array([0.5,0,0]))
-        trace_2 = Circle(radius=0.1, stroke_width=stroke_width * 0.5, stroke_color=stroke_color).move_to(np.array([1.5, 0, 0]))
-        trace_3 = VMobject(stroke_color=stroke_color,stroke_width=stroke_width).set_points_as_corners([ORIGIN,np.array([0.4,0,0])])
-        trace_4 = VMobject(stroke_color=stroke_color,stroke_width=stroke_width).set_points_as_corners(np.array(([0.6,0,0],[1.4,0,0])))
+        trace_1 = VMobject(stroke_color=stroke_color,stroke_width=stroke_width).set_points_as_corners([ORIGIN,np.array([0.4,0,0])])
+        trace_2 = Circle(radius=0.1,stroke_width=stroke_width*0.5,stroke_color=stroke_color).move_to(np.array([0.5,0,0]))
+        trace_3 = VMobject(stroke_color=stroke_color,stroke_width=stroke_width).set_points_as_corners(np.array(([0.6,0,0],[1.4,0,0])))
+        trace_4 = Circle(radius=0.1, stroke_width=stroke_width * 0.5, stroke_color=stroke_color).move_to(np.array([1.5, 0, 0]))
         trace_5 = VMobject(stroke_color=stroke_color,stroke_width=stroke_width).set_points_as_corners(np.array(([1.6,0,0],[2,0,0])))
         trace = VGroup(trace_1,trace_2,trace_3,trace_4,trace_5).scale(0.5).move_to(ORIGIN)
         bounds = Square(side_length=1, stroke_opacity=0)
@@ -197,14 +197,17 @@ class CircuitElements():
             path = path.append_points(VMobject().set_points_as_corners([A, M, B]).points)
         return path
 
-    def get_closed_path(path):
+    def get_closed_path(path,connect_end=True):
         subpaths = path.get_subpaths()
         closed_path=VMobject()
         for i in range(0,len(subpaths)-1):
             closed_path.append_points(subpaths[i]).append_points(
                 VMobject().set_points_as_corners([subpaths[i][len(subpaths[i]) - 1], subpaths[i + 1][0]]).points)
-        closed_path.append_points(subpaths[len(subpaths)-1]).append_points(
-            VMobject().set_points_as_corners([subpaths[len(subpaths)-1][len(subpaths[len(subpaths)-1]) - 1], subpaths[0][0]]).points)
+        if connect_end:
+            closed_path.append_points(subpaths[len(subpaths)-1]).append_points(
+                VMobject().set_points_as_corners([subpaths[len(subpaths)-1][len(subpaths[len(subpaths)-1]) - 1], subpaths[0][0]]).points)
+        else:
+            closed_path.append_points(subpaths[len(subpaths) - 1])
         return closed_path
 
     def get_angle(V1:np.array,V2:np.array):
